@@ -79,7 +79,7 @@ class SiteController extends Controller
             $model = new LoginForm();
             if ($model->load(Yii::$app->request->post())) {
             
-                $user = User::findByEmail($model->email);
+                $user = User::findByEmail($model->username);
                 if(!empty($user)){
                     if(User::checkPassword($user, $model->password)){
                        
@@ -104,7 +104,6 @@ class SiteController extends Controller
                 $model->addError('email', 'Incorrect email address');
             }
             $model->password = '';
-            print_r(Yii::$app->user);
             return $this->render('login', [
                 'model' => $model,
             ]);
