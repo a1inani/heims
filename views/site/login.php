@@ -38,4 +38,3 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php ActiveForm::end(); ?>
 </div>
-<?php //var_dump(session_save_path()); ?>
