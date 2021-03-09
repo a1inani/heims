@@ -21,10 +21,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      public function rules()
     {
         return [
-            [['first_name', 'last_name', 'email',  'role'], 'required'],
+            [['first_name', 'last_name', 'username',  'role'], 'required'],
             [['created_at', 'updated_at', 'updated_by', 'status', 'role'], 'integer'],
-            [['first_name', 'other_name', 'last_name', 'email', 'password', 'authKey'], 'string', 'max' => 255],
-            [['email'], 'email'],
+            [['first_name', 'other_name', 'last_name', 'username', 'password', 'authKey'], 'string', 'max' => 255],
+            [['username'], 'email'],
             [['role'], 'exist', 'skipOnError' => true, 'targetClass' => Role::className(), 'targetAttribute' => ['role' => 'id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updated_by' => 'id']],
         ];
@@ -39,7 +39,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'other_name' => 'Other Name',
             'last_name' => 'Last Name',
 			'isLogged' => 'Is Logged',
-            'email' => 'Email',
+            'username' => 'Email',
             'contact_no' => 'Contact Number',
             'password' => 'Password Hash',
             'authKey' => 'Auth',
@@ -131,7 +131,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     public static function findByEmail($email) {
-        return static::findOne(['email' => $email]);
+        return static::findOne(['username' => $email]);
     }
 
     public static function userIsAllowedTo($right) {
