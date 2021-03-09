@@ -69,11 +69,12 @@ class SiteController extends Controller
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             $user = User::findByUsername($model->username);
-            Yii::$app->session->set('user', $user->id);
-            Yii::$app->session->set('name', $user->getFullName());
+            $session = Yii::$app->session;
+            $session->set('user', $user->id);
+            $session->set('name', $user->getFullName());
             $role = Role::findOne(['id' => $user->role]);
-            Yii::$app->session->set('role', $role->role);
-            Yii::$app->session->set('right', $role->right);
+            $session->set('role', $role->role);
+            $session->set('right', $role->right);
             return $this->redirect(['home']);
         } else {
             $model->addError('email', 'Incorrect email address or password');

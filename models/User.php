@@ -54,7 +54,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return self::findOne(['id' => $id]);
     }
 
     /**
@@ -122,6 +122,11 @@ class User extends ActiveRecord implements IdentityInterface
             return true;
         }
         return false;
+    }
+
+    public static function findByEmail($email)
+    {
+        return static::findOne(['username' => $email]);
     }
     
      public function getCurrentUserID(){

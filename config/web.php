@@ -40,7 +40,7 @@ $config = [
             'enableSession' => true,
             'authTimeout' => 1800,
             'autoRenewCookie' => true,
-            'loginUrl'=>['site/'],
+            'loginUrl'=>['site/index'],
         ],
         'session' => [
             'class' => 'yii\web\Session',

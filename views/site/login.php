@@ -22,8 +22,8 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ],
     ]); ?>
-    <div class="form-group field-loginform-email">
-        <?= $form->field($model, 'email')->textInput(['autocorrect' => 'off', 'autocapitalize' => 'none',
+    <div class="form-group field-loginform-username">
+        <?= $form->field($model, 'username')->textInput(['autocorrect' => 'off', 'autocapitalize' => 'none',
             'autocomplete' => 'off', 'autofocus' => false]) ?>
     </div>
     <div class="form-group field-loginform-password">
