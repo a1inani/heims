@@ -22,17 +22,12 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                'only' => ['logout'/*, 'home'*/],
                 'rules' => [
                     [
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
-                    ],
-                    [
-                        'actions' => ['login'],
-                        'allow' => true,
-                        'roles' => ['?']
                     ],
                 ],
             ],
@@ -68,47 +63,33 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $session = Yii::$app->session;
         if (!Yii::$app->user->isGuest) {
-            $this->layout = 'main';
-            $session = Yii::$app->session;
-            
-            return $this->render('index');
+            return $this->redirect(['home']);
         }
-            $this->layout = 'main-login';
-            $model = new LoginForm();
-            if ($model->load(Yii::$app->request->post())) {
-            
-                $user = User::findByEmail($model->username);
-                if(!empty($user)){
-                    if(User::checkPassword($user, $model->password)){
-                       
-                        $session = Yii::$app->session;
-                        $session['user'] = $user->id;
-                        $session['name'] = $user->getFullName();
-                        $role = Role::findOne(['id' => $user->role]);
-                        $session['role'] = $role->role;
-                        $session['right'] = $role->right;
-                    
-                        if( $model->login()){
-                        $this->layout = 'main';
-                        return $this->render('index');
-                        }else {
-                            print("User not logged in!!!!");
-                        }
-                    }
-                    $model->password = '';
-                    $model->addError('password', 'Incorrect password.');
-                }
-                $model->password = '';
-                $model->addError('email', 'Incorrect email address');
-            }
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            $user = User::findByUsername($model->username);
+            Yii::$app->session->set('user', $user->id);
+            Yii::$app->session->set('name', $user->getFullName());
+            $role = Role::findOne(['id' => $user->role]);
+            Yii::$app->session->set('role', $role->role);
+            Yii::$app->session->set('right', $role->right);
+            return $this->redirect(['home']);
+        } else {
+            $model->addError('email', 'Incorrect email address or password');
             $model->password = '';
-            return $this->render('login', [
-                'model' => $model,
-            ]);
+        }
+        $this->layout = 'main-login';
+        return $this->render('login', [
+            'model' => $model,
+        ]);
     }
 
+    public function actionHome()
+    {
+        $this->layout = 'main';
+        return $this->render('index');
+    }
   
     /**
      * Logout action.
@@ -145,11 +126,4 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-   
 }

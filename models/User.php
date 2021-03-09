@@ -3,10 +3,11 @@
 namespace app\models;
 
 use Yii;
-use yii\base\NotSupportedException;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 
-class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_DELETED = 0;
     const STATUS_INACTIVE = 8;
@@ -16,22 +17,20 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return 'user';
     }
-   
 
-     public function rules()
+    public function rules()
     {
         return [
             [['first_name', 'last_name', 'username',  'role'], 'required'],
             [['created_at', 'updated_at', 'updated_by', 'status', 'role'], 'integer'],
-            [['first_name', 'other_name', 'last_name', 'username', 'password', 'authKey'], 'string', 'max' => 255],
+            [['first_name', 'other_name', 'last_name', 'username', 'password', 'auth'], 'string', 'max' => 255],
             [['username'], 'email'],
             [['role'], 'exist', 'skipOnError' => true, 'targetClass' => Role::className(), 'targetAttribute' => ['role' => 'id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updated_by' => 'id']],
         ];
     }
 
-
-      public function attributeLabels()
+    public function attributeLabels()
     {
         return [
             'id' => 'ID',
@@ -42,7 +41,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'username' => 'Email',
             'contact_no' => 'Contact Number',
             'password' => 'Password Hash',
-            'authKey' => 'Auth',
+            'auth' => 'Auth',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'updated_by' => 'Updated By',
@@ -68,7 +67,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 return new static($user);
             }
         }
-
         return null;
     }
 
@@ -80,13 +78,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return static::findOne(['username' => $username]);
     }
 
     /**
@@ -98,14 +90,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
     
      public function validatePassword($password) {
-        return Yii::$app->getSecurity()->validatePassword($password . $this->authKey, $this->password);
-    }
-    
-    public function checkPassword($user, $password){
-        if(Yii::$app->getSecurity()->validatePassword($password . $user->authKey, $user->password)){
-            return true;
-        }
-        return false;
+        return Yii::$app->security->validatePassword($password . $this->auth, $this->password);
     }
 
     /**
@@ -113,7 +98,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth;
     }
 
     /**
@@ -121,17 +106,13 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        return $this->auth === $authKey;
     }
 
    
-      public function getFullName()
+    public function getFullName()
     {
         return $this->first_name." ".$this->other_name." ".$this->last_name;
-    }
-
-    public static function findByEmail($email) {
-        return static::findOne(['username' => $email]);
     }
 
     public static function userIsAllowedTo($right) {
@@ -149,9 +130,12 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         
         return $id;
     }
-    
-    public function setPassword($password) {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password.$this->authKey);
-    }
 
+    /**
+     * @param $password
+     * @throws \yii\base\Exception
+     */
+    public function setPassword($password) {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password.$this->auth);
+    }
 }

@@ -34,12 +34,6 @@ $config = [
                 ],
             ],
         ],
-        'session' => [
-
-            'class' => 'yii\web\Session',
-
-        ],
-
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
@@ -49,7 +43,7 @@ $config = [
             'loginUrl'=>['site/'],
         ],
         'session' => [
-            'class' => 'yii\web\session',
+            'class' => 'yii\web\Session',
             'timeout' => 86400,
         ],
         'errorHandler' => [
@@ -72,7 +66,6 @@ $config = [
             ],
         ],
         'db' => $db,
-      
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -81,8 +74,6 @@ $config = [
         ],
         
     ],
-    
-    
     'modules' => [
         'gridview' =>  [
             'class' => '\kartik\grid\Module'
